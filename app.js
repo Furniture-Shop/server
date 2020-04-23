@@ -38,7 +38,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use(morgan("combined"));
+app.use(morgan("dev"));
 
 app.use("/api/users", customersRoutes);
 app.use("/api/carts", cartsRoutes);
