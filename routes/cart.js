@@ -1,10 +1,10 @@
-const router = require('express').Router();
+const router = require("express").Router();
+const { check } = require("express-validator");
 
-const CartController = require('../controllers/cart');
+const CartController = require("../controllers/cart");
 
-router.get('/:cid', CartController.getById);
-router.post('/', CartController.create);
-router.patch('/:cid', CartController.update);
-router.delete('/:cid/:iid', CartController.deleteCart);
+router.get("/:cid", CartController.getByCustomerId);
+router.post("/:cid", CartController.create);
+router.delete("/:cid", CartController.deleteCart);
 
 module.exports = router;
