@@ -1,22 +1,25 @@
 {
-   "name": "Backend",
-   "version": "1.0.0",
-   "description": "",
-   "main": "index.js",
-   "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1",
-      "start": "nodemon app.js"
-   },
-   "keywords": [],
-   "author": "",
-   "license": "ISC",
-   "dependencies": {
-      "bcrypt": "^4.0.1",
-      "body-parser": "^1.19.0",
-      "cors": "^2.8.5",
-      "express": "^4.17.1",
-      "mongoose": "^5.9.10",
-      "mongoose-unique-validator": "^2.0.3",
-      "morgan": "^1.10.0"
-   }
+	"name": "server",
+	"version": "1.0.0",
+	"description": "A server for furniture shop application",
+	"main": "app.js",
+	"scripts": {
+		"start": "node app.js",
+		"dev": "NODE_ENV=development npx nodemon app.js"
+	},
+	"keywords": [],
+	"author": "Ricky Codes",
+	"license": "ISC",
+	"dependencies": {
+		"bcrypt": "^4.0.1",
+		"body-parser": "^1.19.0",
+		"cors": "^2.8.5",
+		"express": "^4.17.1",
+		"mongoose": "^5.9.10",
+		"mongoose-unique-validator": "^2.0.3",
+		"morgan": "^1.10.0"
+	},
+	"devDependencies": {
+		"dotenv": "^8.2.0"
+	}
 }
