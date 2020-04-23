@@ -1,22 +1,33 @@
+const { validationResult } = require("express-validator");
+
 const Customer = require("../models/customer");
 
 class CustomerController {
    static async signUp(req, res, next) {
+      // Check that there is no errors with the inputs
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+         next({
+            msg: "Invalid inputs passed, please check your data.",
+            code: 422,
+         });
+      }
+
       const { fullName, email, password } = req.body;
 
+      // Checking if an account with this email already exists
       let existingCustomer;
       try {
          existingCustomer = await Customer.findOne({ email });
       } catch (err) {
-         return res
-            .status(500)
-            .json({ msg: "Signing up failed, please try again later." });
+         next({
+            msg: "Signing up failed, please try again later.",
+            code: 500,
+         });
       }
 
       if (existingCustomer) {
-         return res
-            .status(422)
-            .json({ msg: "User exists already, please login instead." });
+         next({ msg: "User exists already, please login instead.", code: 422 });
       }
 
       const createdCustomer = new Customer({
@@ -28,9 +39,7 @@ class CustomerController {
       try {
          await createdCustomer.save();
       } catch (err) {
-         return res
-            .status(500)
-            .json({ msg: "Signing up failed, please try again later." });
+         next({ msg: "Signing up failed, please try again later.", code: 500 });
       }
 
       res.status(201).json({
@@ -39,21 +48,28 @@ class CustomerController {
    }
 
    static async login(req, res, next) {
+      // Checking that there is no errors with the inputs
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+         next({
+            msg: "Invalid inputs passed, please check your data.",
+            code: 422,
+         });
+      }
+
       const { email, password } = req.body;
 
+      // Checking if the account exists
       let existingCustomer;
       try {
          existingCustomer = await Customer.findOne({ email });
       } catch (err) {
-         return res.status(500).json({
-            msg: "Logging in failed, please try again later.",
-         });
+         next({ msg: "Logging in failed, please try again later.", code: 500 });
       }
 
+      // Making sure that the credentials are correct
       if (!existingCustomer || existingCustomer.password !== password) {
-         return res.status(401).json({
-            msg: "Invalid credentials, could not log you in.",
-         });
+         next({ msg: "Invalid credentials, could not log you in.", code: 401 });
       }
 
       res.json({
