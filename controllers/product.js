@@ -29,14 +29,14 @@ class ProductController {
          product = await Product.findById(productId);
       } catch (err) {
          next({
-            msg: "Something went wrong, could not find a place.",
+            msg: "Something went wrong, could not find a product.",
             code: 500,
          });
       }
 
       if (!product) {
          next({
-            msg: "Could not find a place for the provided id.",
+            msg: "Could not find a product for the provided id.",
             code: 404,
          });
       }
@@ -65,7 +65,7 @@ class ProductController {
       try {
          await createdProduct.save();
       } catch (err) {
-         next({ msg: "Creating place failed, please try again.", code: 500 });
+         next({ msg: "Creating product failed, please try again.", code: 500 });
       }
 
       res.status(201).json({
@@ -121,7 +121,7 @@ class ProductController {
          });
       }
 
-      if (!place) {
+      if (!product) {
          next({ msg: "Could not find product for this id.", code: 404 });
       }
 
@@ -129,12 +129,12 @@ class ProductController {
          await product.remove();
       } catch (err) {
          next({
-            msg: "Something went wrong, could not delete place.",
+            msg: "Something went wrong, could not delete product.",
             code: 500,
          });
       }
 
-      res.json({ msg: "Deleted place." });
+      res.json({ msg: "Deleted product." });
    }
 }
 
