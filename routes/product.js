@@ -1,11 +1,30 @@
-const router = require('express').Router();
+const router = require("express").Router();
+const { check } = require("express-validator");
 
-const ProductController = require('../controllers/product');
+const ProductController = require("../controllers/product");
 
-router.get('/', ProductController.findAll);
-router.get('/:pid', ProductController.findById);
-router.post('/', ProductController.create);
-router.patch('/:pid', ProductController.update);
-router.delete('/:pid', ProductController.deleteProduct);
+router.get("/", ProductController.findAll);
+router.get("/:pid", ProductController.findById);
+router.post(
+   "/",
+   [
+      check("name").not().isEmpty(),
+      check("price").not().isEmpty(),
+      check("material").not().isEmpty(),
+      check("dimensions").not().isEmpty(),
+   ],
+   ProductController.create
+);
+router.patch(
+   "/:pid",
+   [
+      check("name").not().isEmpty(),
+      check("price").not().isEmpty(),
+      check("material").not().isEmpty(),
+      check("dimensions").not().isEmpty(),
+   ],
+   ProductController.update
+);
+router.delete("/:pid", ProductController.deleteProduct);
 
 module.exports = router;
