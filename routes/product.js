@@ -15,7 +15,7 @@ router.post(
    ],
    ProductController.create
 );
-router.patch(
+router.put(
    "/:pid",
    [
       check("name").not().isEmpty(),

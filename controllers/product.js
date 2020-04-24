@@ -4,9 +4,8 @@ const Product = require("../models/product");
 class ProductController {
    static async findAll(req, res, next) {
       let products;
-
       try {
-         products = await Product.find({}, "-password");
+         products = await Product.find();
       } catch (err) {
          next({
             msg: "Fetching products failed, please try again later.",
@@ -15,9 +14,9 @@ class ProductController {
       }
 
       res.json({
-         products: products.map((product) => {
-            product.toObject({ getters: true });
-         }),
+         products: products.map((product) =>
+            product.toObject({ getters: true })
+         ),
       });
    }
 
@@ -74,6 +73,7 @@ class ProductController {
    }
 
    static async update(req, res, next) {
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
          next({
             msg: "Invalid inputs passed, please check your data.",
@@ -94,10 +94,15 @@ class ProductController {
          });
       }
 
-      product = { name, price, material, dimensions };
+      product = new Product({
+         name,
+         price,
+         material,
+         dimensions,
+      });
 
       try {
-         await Product.save();
+         await product.save();
       } catch (err) {
          next({
             msg: "Something went wrong, could not update product.",

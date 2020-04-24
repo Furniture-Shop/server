@@ -11,14 +11,17 @@ class CartController {
       try {
          cart = await Cart.findOne({ customerId });
       } catch (err) {
-         next({
+         return next({
             msg: "Something went wrong, could not find a cart.",
             code: 500,
          });
       }
 
       if (!cart) {
-         next({ msg: "Could not find cart for the provided id.", code: 404 });
+         return next({
+            msg: "Could not find cart for the provided id.",
+            code: 404,
+         });
       }
 
       res.json({ cart: cart.toObject({ getters: true }) });
@@ -27,7 +30,7 @@ class CartController {
    static async create(req, res, next) {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-         next({
+         return next({
             msg: "Invalid inputs passed, please check your data",
             code: 422,
          });
@@ -35,15 +38,32 @@ class CartController {
 
       const customerId = req.params.cid;
 
+      let cart;
+      try {
+         cart = await Cart.findOne({ customerId });
+      } catch (err) {
+         return next({
+            msg: "Creating cart failed, please try again.",
+            code: 500,
+         });
+      }
+
+      if (cart) {
+         return next({ msg: "Cart already exists", code: 406 });
+      }
+
       let customer;
       try {
          customer = await Customer.findById(customerId);
       } catch (err) {
-         next({ msg: "Creating cart failed, please try again.", code: 500 });
+         return next({
+            msg: "Creating cart failed, please try again.",
+            code: 500,
+         });
       }
 
       if (!customer) {
-         next({
+         return next({
             msg: "Could not find a customer for the provided id.",
             code: 404,
          });
@@ -52,33 +72,37 @@ class CartController {
       const date = new Date();
       const createdCart = new Cart({
          customerId,
-         createdAtDate: date.getDate(),
+         createdAtDate: date.getTime(),
+         items: [],
       });
 
       try {
          await createdCart.save();
       } catch (err) {
-         next({ msg: "Creating cart failed, please try again.", code: 500 });
+         return next({
+            msg: "Creating cart failed, please try again.",
+            code: 500,
+         });
       }
 
       res.status(201).json({ cart: createdCart });
    }
 
-   static async deleteCart(req, res, next) {
-      const cartId = req.params.cid;
+   static async deleteCartByCustomerId(req, res, next) {
+      const customerId = req.params.cid;
 
       let cart;
       try {
-         cart = await Cart.findById(cartId).populate("items");
+         cart = await Cart.findOne({ customerId }).populate("items");
       } catch (err) {
-         next({
+         return next({
             msg: "Something went wrong, could not delete cart",
             code: 500,
          });
       }
 
       if (!cart) {
-         next({ msg: "Could not find place for this id.", code: 404 });
+         return next({ msg: "Could not find place for this id.", code: 404 });
       }
 
       try {
@@ -90,7 +114,7 @@ class CartController {
          await cart.remove({ session });
          await session.commitTransaction();
       } catch (err) {
-         next({
+         return next({
             msg: "Something went wrong, could not delete place.",
             code: 500,
          });

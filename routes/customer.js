@@ -6,7 +6,7 @@ const CustomerController = require("../controllers/customer");
 router.post(
    "/signup",
    [
-      check("firstName").not().isEmpty(),
+      check("fullName").not().isEmpty(),
       check("email").isEmail(),
       check("password").isLength({ min: 6 }),
    ],
