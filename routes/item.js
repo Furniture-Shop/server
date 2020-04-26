@@ -7,11 +7,7 @@ router.post(
    check("quantity").not().isEmpty(),
    ItemController.create
 );
-router.patch(
-   "/:cid/:iid",
-   check("quantity").not().isEmpty(),
-   ItemController.update
-); // The cid parameter is temporary until we add jwt
-router.delete("/:cid/:iid", ItemController.delete);
+router.patch("/:iid", check("quantity").not().isEmpty(), ItemController.update);
+router.delete("/:iid", ItemController.delete);
 
 module.exports = router;

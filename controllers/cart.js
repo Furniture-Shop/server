@@ -9,7 +9,7 @@ class CartController {
 
       let cart;
       try {
-         cart = await Cart.findOne({ customerId });
+         cart = await Cart.findOne({ customerId }).populate("items");
       } catch (err) {
          return next({
             msg: "Something went wrong, could not find a cart.",
@@ -40,7 +40,7 @@ class CartController {
 
       let cart;
       try {
-         cart = await Cart.findOne({ customerId });
+         cart = await Cart.findOne({ customerId }).populate("items");
       } catch (err) {
          return next({
             msg: "Creating cart failed, please try again.",
@@ -109,7 +109,7 @@ class CartController {
          const session = await mongoose.startSession();
          session.startTransaction();
          await cart.items.map((item) => {
-            item.remove();
+            item.remove({ session });
          });
          await cart.remove({ session });
          await session.commitTransaction();
