@@ -1,146 +1,144 @@
-const { validationResult } = require("express-validator");
-const Product = require("../models/product");
+const { validationResult } = require('express-validator');
+const Product = require('../models/product');
 
 class ProductController {
-   static async findAll(req, res, next) {
-      let products;
-      try {
-         products = await Product.find();
-      } catch (err) {
-         next({
-            msg: "Fetching products failed, please try again later.",
-            code: 500,
-         });
-      }
+	static async findAll(req, res, next) {
+		let products;
+		try {
+			products = await Product.find();
+		} catch (err) {
+			next({
+				msg: 'Fetching products failed, please try again later.',
+				code: 500,
+			});
+		}
 
-      res.json({
-         products: products.map((product) =>
-            product.toObject({ getters: true })
-         ),
-      });
-   }
+		res.json({
+			products: products.map((product) => product.toObject({ getters: true })),
+		});
+	}
 
-   static async findById(req, res, next) {
-      const productId = req.params.pid;
+	static async findById(req, res, next) {
+		const productId = req.params.pid;
 
-      let product;
-      try {
-         product = await Product.findById(productId);
-      } catch (err) {
-         next({
-            msg: "Something went wrong, could not find a product.",
-            code: 500,
-         });
-      }
+		let product;
+		try {
+			product = await Product.findById(productId);
+		} catch (err) {
+			next({
+				msg: 'Something went wrong, could not find a product.',
+				code: 500,
+			});
+		}
 
-      if (!product) {
-         next({
-            msg: "Could not find a product for the provided id.",
-            code: 404,
-         });
-      }
+		if (!product) {
+			next({
+				msg: 'Could not find a product for the provided id.',
+				code: 404,
+			});
+		}
 
-      res.json({ product: product.toObject({ getters: true }) });
-   }
+		res.json({ product: product.toObject({ getters: true }) });
+	}
 
-   static async create(req, res, next) {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-         next({
-            msg: "Invalid inputs passed, please check your data.",
-            code: 422,
-         });
-      }
+	static async create(req, res, next) {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			next({
+				msg: 'Invalid inputs passed, please check your data.',
+				code: 422,
+			});
+		}
 
-      const { name, price, material, dimensions } = req.body;
+		const { name, price, color, dimensions } = req.body;
 
-      const createdProduct = new Product({
-         name,
-         price,
-         material,
-         dimensions,
-      });
+		const createdProduct = new Product({
+			name,
+			price,
+			color,
+			dimensions,
+		});
 
-      try {
-         await createdProduct.save();
-      } catch (err) {
-         next({ msg: "Creating product failed, please try again.", code: 500 });
-      }
+		try {
+			await createdProduct.save();
+		} catch (err) {
+			next({ msg: 'Creating product failed, please try again.', code: 500 });
+		}
 
-      res.status(201).json({
-         product: createdProduct.toObject({ getters: true }),
-      });
-   }
+		res.status(201).json({
+			product: createdProduct.toObject({ getters: true }),
+		});
+	}
 
-   static async update(req, res, next) {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-         next({
-            msg: "Invalid inputs passed, please check your data.",
-            code: 422,
-         });
-      }
+	static async update(req, res, next) {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			next({
+				msg: 'Invalid inputs passed, please check your data.',
+				code: 422,
+			});
+		}
 
-      const { name, price, material, dimensions } = req.body;
-      const productId = req.params.pid;
+		const { name, price, color, dimensions } = req.body;
+		const productId = req.params.pid;
 
-      let product;
-      try {
-         product = await Product.findById(productId);
-      } catch (err) {
-         next({
-            msg: "Something went wrong, could not update product.",
-            code: 500,
-         });
-      }
+		let product;
+		try {
+			product = await Product.findById(productId);
+		} catch (err) {
+			next({
+				msg: 'Something went wrong, could not update product.',
+				code: 500,
+			});
+		}
 
-      product = new Product({
-         name,
-         price,
-         material,
-         dimensions,
-      });
+		product = new Product({
+			name,
+			price,
+			color,
+			dimensions,
+		});
 
-      try {
-         await product.save();
-      } catch (err) {
-         next({
-            msg: "Something went wrong, could not update product.",
-            code: 500,
-         });
-      }
+		try {
+			await product.save();
+		} catch (err) {
+			next({
+				msg: 'Something went wrong, could not update product.',
+				code: 500,
+			});
+		}
 
-      res.json({ product: product.toObject({ getters: true }) });
-   }
+		res.json({ product: product.toObject({ getters: true }) });
+	}
 
-   static async deleteProduct(req, res, next) {
-      const productId = req.params.pid;
+	static async deleteProduct(req, res, next) {
+		const productId = req.params.pid;
 
-      let product;
-      try {
-         product = await Product.findById(productId);
-      } catch (err) {
-         next({
-            msg: "Something went wrong, could not delete product.",
-            code: 500,
-         });
-      }
+		let product;
+		try {
+			product = await Product.findById(productId);
+		} catch (err) {
+			next({
+				msg: 'Something went wrong, could not delete product.',
+				code: 500,
+			});
+		}
 
-      if (!product) {
-         next({ msg: "Could not find product for this id.", code: 404 });
-      }
+		if (!product) {
+			next({ msg: 'Could not find product for this id.', code: 404 });
+		}
 
-      try {
-         await product.remove();
-      } catch (err) {
-         next({
-            msg: "Something went wrong, could not delete product.",
-            code: 500,
-         });
-      }
+		try {
+			await product.remove();
+		} catch (err) {
+			next({
+				msg: 'Something went wrong, could not delete product.',
+				code: 500,
+			});
+		}
 
-      res.json({ msg: "Deleted product." });
-   }
+		res.json({ msg: 'Deleted product.' });
+	}
 }
 
 module.exports = ProductController;

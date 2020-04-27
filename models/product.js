@@ -3,7 +3,7 @@ const { Schema, model } = require('mongoose');
 const productSchema = new Schema({
 	name: { type: String, required: true },
 	price: { type: Number, required: true, min: 0 },
-	material: { type: String, required: true },
+	color: { type: String, required: true },
 	dimensions: { type: String, required: true },
 });
 
