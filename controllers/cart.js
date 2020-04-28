@@ -102,7 +102,7 @@ class CartController {
       }
 
       if (!cart) {
-         return next({ msg: "Could not find place for this id.", code: 404 });
+         return next({ msg: "Could not find cart for this id.", code: 404 });
       }
 
       try {
@@ -115,12 +115,12 @@ class CartController {
          await session.commitTransaction();
       } catch (err) {
          return next({
-            msg: "Something went wrong, could not delete place.",
+            msg: "Something went wrong, could not delete cart.",
             code: 500,
          });
       }
 
-      res.json({ msg: "Deleted place." });
+      res.json({ msg: "Deleted cart." });
    }
 }
 
