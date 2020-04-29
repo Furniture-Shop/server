@@ -1,27 +1,32 @@
 {
-   "name": "server",
-   "version": "1.0.0",
-   "description": "A server for furniture shop application",
-   "main": "app.js",
-   "scripts": {
-      "start": "cross-env NODE_ENV=prod npx nodemon app.js",
-      "dev": "cross-env NODE_ENV=dev npx nodemon app.js"
-   },
-   "keywords": [],
-   "author": "Ricky Codes",
-   "license": "ISC",
-   "dependencies": {
-      "bcrypt": "^4.0.1",
-      "body-parser": "^1.19.0",
-      "cors": "^2.8.5",
-      "express": "^4.17.1",
-      "express-validator": "^6.4.0",
-      "mongoose": "^5.9.10",
-      "mongoose-unique-validator": "^2.0.3",
-      "morgan": "^1.10.0"
-   },
-   "devDependencies": {
-      "cross-env": "^7.0.2",
-      "dotenv": "^8.2.0"
-   }
+	"name": "server",
+	"version": "1.0.0",
+	"description": "A server for furniture shop application",
+	"main": "app.js",
+	"scripts": {
+		"start": "cross-env NODE_ENV=prod npx nodemon app.js",
+		"dev": "cross-env NODE_ENV=dev npx nodemon app.js",
+		"lint": "eslint --ignore-path .gitignore .",
+		"fix": "./node_modules/.bin/eslint --fix --ignore-path .gitignore ."
+	},
+	"keywords": [],
+	"author": "Ricky Codes",
+	"license": "ISC",
+	"dependencies": {
+		"bcrypt": "^4.0.1",
+		"body-parser": "^1.19.0",
+		"cors": "^2.8.5",
+		"express": "^4.17.1",
+		"express-validator": "^6.4.0",
+		"mongoose": "^5.9.10",
+		"mongoose-unique-validator": "^2.0.3",
+		"morgan": "^1.10.0"
+	},
+	"devDependencies": {
+		"cross-env": "^7.0.2",
+		"dotenv": "^8.2.0",
+		"eslint": "^6.8.0",
+		"eslint-config-airbnb-base": "^14.1.0",
+		"eslint-plugin-import": "^2.20.2"
+	}
 }

@@ -6,24 +6,24 @@ const ProductController = require('../controllers/product');
 router.get('/', ProductController.findAll);
 router.get('/:pid', ProductController.findById);
 router.post(
-	'/',
-	[
-		check('name').not().isEmpty(),
-		check('price').not().isEmpty(),
-		check('color').not().isEmpty(),
-		check('dimensions').not().isEmpty(),
-	],
-	ProductController.create
+  '/',
+  [
+    check('name').not().isEmpty(),
+    check('price').not().isEmpty(),
+    check('color').not().isEmpty(),
+    check('dimensions').not().isEmpty(),
+  ],
+  ProductController.create,
 );
 router.put(
-	'/:pid',
-	[
-		check('name').not().isEmpty(),
-		check('price').not().isEmpty(),
-		check('color').not().isEmpty(),
-		check('dimensions').not().isEmpty(),
-	],
-	ProductController.update
+  '/:pid',
+  [
+    check('name').not().isEmpty(),
+    check('price').not().isEmpty(),
+    check('color').not().isEmpty(),
+    check('dimensions').not().isEmpty(),
+  ],
+  ProductController.update,
 );
 router.delete('/:pid', ProductController.deleteProduct);
 
