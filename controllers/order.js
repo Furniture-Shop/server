@@ -2,12 +2,44 @@ const { validationResult } = require('express-validator');
 const Order = require('../models/order');
 
 class OrderController {
+  static async findAll(req, res, next) {
+    let orders;
+    try {
+      orders = await Order.find();
+    } catch (err) {
+      return next({
+        msg: 'Fetching orders failed, please try again later.',
+        code: 500,
+      });
+    }
+
+    res.json({
+      orders: orders.map((order) => order.toObject({ getters: true })),
+    });
+  }
+
+  static async getOrder(req, res, next) {
+    const orderId = req.params.oid;
+
+    let order;
+    try {
+      order = await Order.findById(orderId);
+    } catch (err) {
+      return next({
+        msg: 'Fetching orders failed, please try again later.',
+        code: 500,
+      });
+    }
+
+    res.json({ order: order.toObject({ getters: true }) });
+  }
+
   static async create(req, res, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return next({
         msg: 'Invalid inputs passed, please check your data.',
-        code: 422
+        code: 422,
       });
     }
 
@@ -17,7 +49,7 @@ class OrderController {
       invoiceDate,
       invoiceNo,
       items,
-      status
+      status,
     } = req.body;
 
     const createdOrder = new Order({
@@ -26,7 +58,7 @@ class OrderController {
       invoiceDate,
       invoiceNo,
       items,
-      status
+      status,
     });
 
     try {
@@ -34,41 +66,28 @@ class OrderController {
     } catch (err) {
       return next({
         msg: 'Creating order failed, please try again.',
-        code: 500
+        code: 500,
       });
     }
 
     res.status(201).json({
-      order: createdOrder.toObject({ getters: true })
+      order: createdOrder.toObject({ getters: true }),
     });
   }
 
-  static async getOrder(req, res, next) {
-    let orders;
-    try {
-      orders = await order.find();
-    } catch (err) {
-      return next({
-        msg: 'Fetching orders failed, please try again later.',
-        code: 500
-      });
-    }
-
-    res.json({
-      orders: orders.map(order => order.toObject({ getters: true }))
-    });
-  }
 
   static async update(req, res, next) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return next({
         msg: 'Invalid inputs passed, please check your data.',
-        code: 422
+        code: 422,
       });
     }
 
-    const { totalPrice, customer, invoiceNo, items, status } = req.body;
+    const {
+      totalPrice, customer, invoiceNo, items, status,
+    } = req.body;
 
     const orderId = req.params.oid;
 
@@ -78,7 +97,7 @@ class OrderController {
     } catch (err) {
       return next({
         msg: 'Something went wrong, could not update order.',
-        code: 500
+        code: 500,
       });
     }
 
@@ -87,7 +106,7 @@ class OrderController {
       customer,
       invoiceNo,
       items,
-      status
+      status,
     });
 
     try {
@@ -95,7 +114,7 @@ class OrderController {
     } catch (err) {
       return next({
         msg: 'Something went wrong, could not update order.',
-        code: 500
+        code: 500,
       });
     }
 
@@ -107,11 +126,11 @@ class OrderController {
     let order;
 
     try {
-      order = await Order.findById('orderId');
+      order = await Order.findById(orderId);
     } catch (err) {
       return next({
         msg: 'Something went wrong, could not delete order.',
-        code: 500
+        code: 500,
       });
     }
 
@@ -124,27 +143,11 @@ class OrderController {
     } catch (err) {
       return next({
         msg: 'Something went wrong, could not delete order.',
-        code: 500
+        code: 500,
       });
     }
 
     res.json({ msg: 'Deleted order.' });
-  }
-
-  static async findAll(req, res, next) {
-    let orders;
-    try {
-      orders = await Order.find();
-    } catch (err) {
-      return next({
-        msg: 'Fetching orders failed, please try again later.',
-        code: 500
-      });
-    }
-
-    res.json({
-      orders: orders.map(product => order.toObject({ getters: true }))
-    });
   }
 }
 

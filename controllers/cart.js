@@ -88,7 +88,7 @@ class CartController {
     res.status(201).json({ cart: createdCart });
   }
 
-  static async deleteCartByCustomerId(req, res, next) {
+  static async emptyCartByCustomerId(req, res, next) {
     const customerId = req.params.cid;
 
     let cart;
@@ -102,15 +102,16 @@ class CartController {
     }
 
     if (!cart) {
-      return next({ msg: 'Could not find cart for this id.', code: 404 });
+      return next({ msg: 'Could not find cart for this customer id.', code: 404 });
     }
 
     try {
       const session = await mongoose.startSession();
       session.startTransaction();
       await cart.items.map((item) => item.remove({ session }));
-      await cart.remove({ session });
-      await session.commitTransaction();
+      cart.items.map((item) => cart.items.pull(item));
+      await cart.save();
+      session.commitTransaction();
     } catch (err) {
       return next({
         msg: 'Something went wrong, could not delete cart.',
@@ -118,7 +119,7 @@ class CartController {
       });
     }
 
-    res.json({ msg: 'Deleted cart.' });
+    res.json({ msg: 'Emptied cart.' });
   }
 }
 
