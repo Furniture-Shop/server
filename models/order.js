@@ -6,7 +6,7 @@ const orderSchema = new Schema({
   invoiceDate: { type: Date, default: Date.now },
   invoiceNo: { type: Number, required: true, min: 0 },
   items: [{ type: Types.ObjectId, required: true, ref: 'Product' }],
-  status: { type: String, require: true }
+  status: { type: String, require: true },
 });
 
 module.exports = model('Order', orderSchema);

@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const OrderController = require('../controllers/order');
 const { check } = require('express-validator');
+const OrderController = require('../controllers/order');
 
 router.get('/', OrderController.findAll);
 router.get('/:oid', OrderController.getOrder);
@@ -11,9 +11,9 @@ router.post(
     check('customer').not().isEmpty(),
     check('invoiceNo').not().isEmpty(),
     check('items').not().isEmpty(),
-    check('status').not().isEmpty()
+    check('status').not().isEmpty(),
   ],
-  OrderController.create
+  OrderController.create,
 );
 router.put(
   '/:oid',
@@ -22,9 +22,9 @@ router.put(
     check('customer').not().isEmpty(),
     check('invoiceNo').not().isEmpty(),
     check('items').not().isEmpty(),
-    check('status').not().isEmpty()
+    check('status').not().isEmpty(),
   ],
-  OrderController.update
+  OrderController.update,
 );
 router.delete('/:oid', OrderController.delete);
 
