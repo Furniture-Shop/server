@@ -18,4 +18,15 @@ router.post(
   CustomerController.login,
 );
 
+router.put(
+  '/:id',
+  [
+    check('email').isEmail(),
+    check('password').isLength({ min: 6 }),
+  ],
+  CustomerController.update,
+);
+
+router.delete('/:id', CustomerController.delete);
+
 module.exports = router;
