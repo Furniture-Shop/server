@@ -3,6 +3,32 @@ const Customer = require('../models/customer');
 const { hashPassword, comparePassword } = require('../helpers/bcrypt');
 
 class CustomerController {
+  static async getCustomerData(req, res, next) {
+    const customerId = req.params.id;
+    let customer;
+
+    try {
+      customer = await Customer.findById(customerId);
+    } catch (err) {
+      return next({
+        msg: 'Customer not found for this id.',
+        code: 500,
+      });
+    }
+
+    if (!customer) {
+      return next({
+        msg: 'Could not find customer for this id.',
+        code: 404,
+      });
+    }
+
+    res.json({
+      name: customer.fullName,
+      email: customer.email,
+    });
+  }
+
   static async signUp(req, res, next) {
     // Check that there is no errors with the inputs
     const errors = validationResult(req);
@@ -144,7 +170,10 @@ class CustomerController {
     }
 
     if (!customer) {
-      return next({ msg: 'Could not find customer for this id.', code: 404 });
+      return next({
+        msg: 'Could not find customer for this id.',
+        code: 404,
+      });
     }
 
     // Check which field the customer wants to update
@@ -217,7 +246,9 @@ class CustomerController {
       });
     }
 
-    res.json({ msg: 'Deleted customer.' });
+    res.json({
+      msg: 'Deleted customer.',
+    });
   }
 }
 

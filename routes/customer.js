@@ -3,6 +3,8 @@ const { check } = require('express-validator');
 
 const CustomerController = require('../controllers/customer');
 
+router.get('/:id', CustomerController.getCustomerData);
+
 router.post(
   '/signup',
   [
