@@ -127,6 +127,98 @@ class CustomerController {
       user: existingCustomer.toObject({ getters: true }),
     });
   }
+
+
+  static async update(req, res, next) {
+    const customerId = req.params.id;
+    const { fullName, email, password } = req.body;
+    let customer;
+
+    try {
+      customer = await Customer.findById(customerId);
+    } catch (err) {
+      return next({
+        msg: 'Something went wrong, could not delete customer.',
+        code: 500,
+      });
+    }
+
+    if (!customer) {
+      return next({ msg: 'Could not find customer for this id.', code: 404 });
+    }
+
+    // Check which field the customer wants to update
+    if (fullName !== undefined) {
+      customer.fullName = fullName;
+    }
+
+    if (email !== undefined) {
+      customer.email = email;
+    }
+
+    if (password !== undefined) {
+      let hashedPassword;
+      try {
+        const response = await hashPassword(password);
+        if (response.success) {
+          hashedPassword = response.hash;
+        } else {
+          return next({
+            msg: 'Something went wrong when hashing, please try again.',
+            code: 500,
+          });
+        }
+      } catch (err) {
+        return next({
+          msg: 'Could not create customer, please try again.',
+          code: 500,
+        });
+      }
+      customer.password = hashedPassword;
+    }
+
+    try {
+      customer.save();
+      res.json({ msg: 'Customer updated. ' });
+    } catch (err) {
+      return next({
+        msg: `Something went wrong, could not update Customer ${customerId}`,
+        code: 500,
+      });
+    }
+  }
+
+  static async delete(req, res, next) {
+    const customerId = req.params.id;
+    let customer;
+
+    try {
+      customer = await Customer.findById(customerId);
+    } catch (err) {
+      return next({
+        msg: 'Something went wrong, could not delete customer.',
+        code: 500,
+      });
+    }
+
+    if (!customer) {
+      return next({
+        msg: 'Could not find customer for this id.',
+        code: 404,
+      });
+    }
+
+    try {
+      await customer.remove();
+    } catch (err) {
+      return next({
+        msg: 'Something went wrong, could not delete customer.',
+        code: 500,
+      });
+    }
+
+    res.json({ msg: 'Deleted customer.' });
+  }
 }
 
 module.exports = CustomerController;
