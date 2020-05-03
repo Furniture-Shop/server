@@ -18,16 +18,23 @@ class OrderController {
     });
   }
 
-  static async getOrder(req, res, next) {
-    const orderId = req.params.oid;
+  static async getOrderByCustomerId(req, res, next) {
+    const customerId = req.params.cid;
 
     let order;
     try {
-      order = await Order.findById(orderId);
+      order = await Order.findOne({ customer: customerId });
     } catch (err) {
       return next({
         msg: 'Fetching orders failed, please try again later.',
         code: 500,
+      });
+    }
+
+    if (!order) {
+      return next({
+        msg: 'Could not find order for the given customer id.',
+        code: 404,
       });
     }
 

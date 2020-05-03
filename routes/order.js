@@ -3,7 +3,7 @@ const { check } = require('express-validator');
 const OrderController = require('../controllers/order');
 
 router.get('/', OrderController.findAll);
-router.get('/:oid', OrderController.getOrder);
+router.get('/:cid', OrderController.getOrderByCustomerId);
 router.post(
   '/',
   [
