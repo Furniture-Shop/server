@@ -99,12 +99,10 @@ class ProductController {
       });
     }
 
-    product = new Product({
-      name,
-      price,
-      color,
-      dimensions,
-    });
+    product.name = name;
+    product.price = price;
+    product.color = color;
+    product.dimensions = dimensions;
 
     try {
       await product.save();
