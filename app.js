@@ -1,11 +1,7 @@
-// get env CONFIG
-require('dotenv').config({
-  path: `.env.${process.env.NODE_ENV || 'prod'}`,
-});
+require('./db-connect');
 
 // all module imports
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const morgan = require('morgan');
 const routes = require('./routes');
@@ -13,7 +9,6 @@ const errorHandler = require('./middlewares/errorHandler');
 
 // other variables
 const app = express();
-const { PORT, MONGODB_URL } = process.env;
 
 // middlewares
 app.use(express.json());
@@ -25,14 +20,4 @@ app.use(morgan('dev'));
 app.use(routes);
 app.use(errorHandler);
 
-// Deprecation warning fix
-mongoose.set('useCreateIndex', true);
-
-// connection
-mongoose
-  .connect(MONGODB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => app.listen(PORT, () => console.log(`http://localhost:${PORT}`)))
-  .catch(console.log);
+module.exports = app;
