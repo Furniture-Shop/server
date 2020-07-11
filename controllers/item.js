@@ -1,221 +1,221 @@
-const mongoose = require('mongoose');
-const { validationResult } = require('express-validator');
+const mongoose = require("mongoose");
+const { validationResult } = require("express-validator");
 
-const Item = require('../models/item');
-const Cart = require('../models/cart');
-const Product = require('../models/product');
+const Item = require("../models/item");
+const Cart = require("../models/cart");
+const Product = require("../models/product");
 
 class ItemController {
-  static async create(req, res, next) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return next({
-        msg: 'Invalid inputs passed, please check your data',
-        code: 422,
-      });
-    }
-
-    const { cid: cartId, pid: productId } = req.params;
-    const { quantity } = req.body;
-
-    // I do it in that order because if the item already exists
-    //  I need the cart but I will not need the product
-    let cart;
-    try {
-      cart = await Cart.findById(cartId).populate('items');
-    } catch (err) {
-      return next({
-        msg: 'Creating item failed, please try again.',
-        code: 500,
-      });
-    }
-
-    if (!cart) {
-      return next({
-        msg: 'Could not find a cart for the provided id',
-        code: 404,
-      });
-    }
-
-    let item;
-    try {
-      item = await Item.findOne({ cartId, productId });
-    } catch (err) {
-      return next({
-        msg: 'Creating item failed, please try again.',
-        code: 500,
-      });
-    }
-
-    if (item) {
-      item.quantity = Number(item.quantity) + Number(quantity);
-      try {
-        const session = await mongoose.startSession();
-        session.startTransaction();
-        await item.save({ session });
-        await cart.save({ session });
-        session.commitTransaction();
-      } catch (err) {
-        return next({
-          msg: 'Item already exists. Updating the item failed',
-          code: 500,
-        });
+   static async create(req, res, next) {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+         return next({
+            msg: "Invalid inputs passed, please check your data",
+            code: 422,
+         });
       }
-      return res.json({ item: item.toObject({ getters: true }) });
-    }
 
-    let product;
-    try {
-      product = await Product.findById(productId);
-    } catch (err) {
-      return next({
-        msg: 'Creating item failed, please try again.',
-        code: 500,
+      const { cid: cartId, pid: productId } = req.params;
+      const { quantity } = req.body;
+
+      // I do it in that order because if the item already exists
+      //  I need the cart but I will not need the product
+      let cart;
+      try {
+         cart = await Cart.findById(cartId).populate("items");
+      } catch (err) {
+         return next({
+            msg: "Creating item failed, please try again.",
+            code: 500,
+         });
+      }
+
+      if (!cart) {
+         return next({
+            msg: "Could not find a cart for the provided id",
+            code: 404,
+         });
+      }
+
+      let item;
+      try {
+         item = await Item.findOne({ cartId, productId });
+      } catch (err) {
+         return next({
+            msg: "Creating item failed, please try again.",
+            code: 500,
+         });
+      }
+
+      if (item) {
+         item.quantity = Number(item.quantity) + Number(quantity);
+         try {
+            const session = await mongoose.startSession();
+            session.startTransaction();
+            await item.save({ session });
+            await cart.save({ session });
+            session.commitTransaction();
+         } catch (err) {
+            return next({
+               msg: "Item already exists. Updating the item failed",
+               code: 500,
+            });
+         }
+         return res.json({ item: item.toObject({ getters: true }) });
+      }
+
+      let product;
+      try {
+         product = await Product.findById(productId);
+      } catch (err) {
+         return next({
+            msg: "Creating item failed, please try again.",
+            code: 500,
+         });
+      }
+
+      if (!product) {
+         return next({
+            msg: "Could not find a product for the provided id",
+            code: 404,
+         });
+      }
+
+      const createdItem = new Item({
+         productId: product.id,
+         cartId: cart.id,
+         quantity,
       });
-    }
 
-    if (!product) {
-      return next({
-        msg: 'Could not find a product for the provided id',
-        code: 404,
-      });
-    }
+      try {
+         const session = await mongoose.startSession();
+         session.startTransaction();
+         await createdItem.save();
+         cart.items.push(createdItem);
+         await cart.save({ session });
+         session.commitTransaction();
+      } catch (err) {
+         return next({
+            msg: "Creating item failed, please try again.",
+            code: 500,
+         });
+      }
 
-    const createdItem = new Item({
-      productId: product.id,
-      cartId: cart.id,
-      quantity,
-    });
+      res.status(201).json({ item: createdItem.toObject({ getters: true }) });
+   }
 
-    try {
-      const session = await mongoose.startSession();
-      session.startTransaction();
-      await createdItem.save();
-      await cart.items.push(createdItem);
-      await cart.save({ session });
-      session.commitTransaction();
-    } catch (err) {
-      return next({
-        msg: 'Creating item failed, please try again.',
-        code: 500,
-      });
-    }
+   static async update(req, res, next) {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+         return next({
+            msg: "Invalid inputs passed, please check your data",
+            code: 422,
+         });
+      }
 
-    res.status(201).json({ item: createdItem.toObject({ getters: true }) });
-  }
+      const itemId = req.params.iid;
+      const { quantity } = req.body;
 
-  static async update(req, res, next) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return next({
-        msg: 'Invalid inputs passed, please check your data',
-        code: 422,
-      });
-    }
+      let item;
+      try {
+         item = await Item.findById(itemId);
+      } catch (err) {
+         return next({
+            msg: "Updating item failed, please try again.",
+            code: 500,
+         });
+      }
 
-    const itemId = req.params.iid;
-    const { quantity } = req.body;
+      if (!item) {
+         return next({
+            msg: "Could not find an item for the provided id.",
+            code: 404,
+         });
+      }
 
-    let item;
-    try {
-      item = await Item.findById(itemId);
-    } catch (err) {
-      return next({
-        msg: 'Updating item failed, please try again.',
-        code: 500,
-      });
-    }
+      // Only needed to be able to save
+      let cart;
+      try {
+         cart = await Cart.findById(item.cartId);
+      } catch (err) {
+         return next({
+            msg: "Updating item failed, please try again.",
+            code: 500,
+         });
+      }
 
-    if (!item) {
-      return next({
-        msg: 'Could not find an item for the provided id.',
-        code: 404,
-      });
-    }
+      // Probably not needed because the item is pushed to a cart when created
+      if (!cart) {
+         return next({
+            msg: "Could not find a cart for the provided customer id.",
+            code: 404,
+         });
+      }
 
-    // Only needed to be able to save
-    let cart;
-    try {
-      cart = await Cart.findById(item.cartId);
-    } catch (err) {
-      return next({
-        msg: 'Updating item failed, please try again.',
-        code: 500,
-      });
-    }
+      item.quantity = quantity;
 
-    // Probably not needed because the item is pushed to a cart when created
-    if (!cart) {
-      return next({
-        msg: 'Could not find a cart for the provided customer id.',
-        code: 404,
-      });
-    }
+      try {
+         const session = await mongoose.startSession();
+         session.startTransaction();
+         await item.save({ session });
+         await cart.save({ session });
+         session.commitTransaction();
+      } catch (err) {
+         return next({
+            msg: "Updating item failed, please try again.",
+            code: 500,
+         });
+      }
 
-    item.quantity = quantity;
+      res.json({ item: item.toObject({ getters: true }) });
+   }
 
-    try {
-      const session = await mongoose.startSession();
-      session.startTransaction();
-      await item.save({ session });
-      await cart.save({ session });
-      session.commitTransaction();
-    } catch (err) {
-      return next({
-        msg: 'Updating item failed, please try again.',
-        code: 500,
-      });
-    }
+   static async delete(req, res, next) {
+      const itemId = req.params.iid;
 
-    res.json({ item: item.toObject({ getters: true }) });
-  }
+      let item;
+      try {
+         item = await Item.findById(itemId);
+      } catch (err) {
+         return next({
+            msg: "Deleting item failed, please try again",
+            code: 500,
+         });
+      }
 
-  static async delete(req, res, next) {
-    const itemId = req.params.iid;
+      if (!item) {
+         return next({
+            msg: "Could not find an item for the provided id.",
+            code: 404,
+         });
+      }
 
-    let item;
-    try {
-      item = await Item.findById(itemId);
-    } catch (err) {
-      return next({
-        msg: 'Deleting item failed, please try again',
-        code: 500,
-      });
-    }
+      let cart;
+      try {
+         cart = await Cart.findById(item.cartId).populate("items");
+      } catch (err) {
+         return next({
+            msg: "Deleting item failed, please try again",
+            code: 500,
+         });
+      }
 
-    if (!item) {
-      return next({
-        msg: 'Could not find an item for the provided id.',
-        code: 404,
-      });
-    }
+      try {
+         const session = await mongoose.startSession();
+         session.startTransaction();
+         cart.items.pull(item);
+         cart.save({ session });
+         item.remove({ session });
+         session.commitTransaction();
+      } catch (err) {
+         return next({
+            msg: "Deleting item failed, please try again.",
+            code: 500,
+         });
+      }
 
-    let cart;
-    try {
-      cart = await Cart.findById(item.cartId).populate('items');
-    } catch (err) {
-      return next({
-        msg: 'Deleting item failed, please try again',
-        code: 500,
-      });
-    }
-
-    try {
-      const session = await mongoose.startSession();
-      session.startTransaction();
-      await cart.items.pull(item);
-      await cart.save({ session });
-      await item.remove({ session });
-      session.commitTransaction();
-    } catch (err) {
-      return next({
-        msg: 'Deleting item failed, please try again.',
-        code: 500,
-      });
-    }
-
-    res.json({ msg: 'Deleted item.' });
-  }
+      res.json({ msg: "Deleted item." });
+   }
 }
 
 module.exports = ItemController;
